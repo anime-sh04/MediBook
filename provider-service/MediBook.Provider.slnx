@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MediBook.Provider.API/MediBook.Provider.API.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MediBook.Provider.API.Tests/MediBook.Provider.API.Tests.csproj" />
+  </Folder>
+</Solution>
