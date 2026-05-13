@@ -1,0 +1,39 @@
+<Solution>
+  <Folder Name="/Gateway/">
+    <Project Path="ApiGateway/ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Folder Name="/Auth/">
+      <Project Path="auth-service/src/MediBook.Auth.API/MediBook.Auth.API.csproj" />
+      <Project Path="auth-service/tests/MediBook.Auth.API.Tests/MediBook.Auth.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Provider/">
+      <Project Path="provider-service/src/MediBook.Provider.API/MediBook.Provider.API.csproj" />
+      <Project Path="provider-service/tests/MediBook.Provider.API.Tests/MediBook.Provider.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Schedule/">
+      <Project Path="schedule-service/src/MediBook.Schedule.API/MediBook.Schedule.API.csproj" />
+      <Project Path="schedule-service/tests/MediBook.Schedule.API.Tests/MediBook.Schedule.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Appointment/">
+      <Project Path="appointment-service/src/MediBook.Appointment.API/MediBook.Appointment.API.csproj" />
+      <Project Path="appointment-service/tests/MediBook.Appointment.API.Tests/MediBook.Appointment.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Notification/">
+      <Project Path="notification-service/src/MediBook.Notification.API/MediBook.Notification.API.csproj" />
+      <Project Path="notification-service/tests/MediBook.Notification.API.Tests/MediBook.Notification.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Payment/">
+      <Project Path="payment-service/src/MediBook.Payment.API/MediBook.Payment.API.csproj" />
+      <Project Path="payment-service/tests/MediBook.Payment.API.Tests/MediBook.Payment.API.Tests.csproj" />
+    </Folder>
+    <Folder Name="/Review/">
+      <Project Path="review-service/src/MediBook.Review.API/MediBook.Review.API.csproj" />
+      <Project Path="review-service/tests/MediBook.Review.API.Tests/MediBook.Review.API.Tests.csproj" />
+    </Folder>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+    <File Path="medibook_postman_collection.json" />
+  </Folder>
+</Solution>
