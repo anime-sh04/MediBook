@@ -1,0 +1,494 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MediBook.Auth.API</name>
+    </assembly>
+    <members>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Register(MediBook.Auth.API.DTOs.RegisterRequest,System.Threading.CancellationToken)">
+            <summary>Register a new Patient account.</summary>
+            <response code="201">Patient registered successfully.</response>
+            <response code="400">Validation errors.</response>
+            <response code="409">Email already registered.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Login(MediBook.Auth.API.DTOs.LoginRequest,System.Threading.CancellationToken)">
+             <summary>
+             Login with email and password.
+             Returns a short-lived JWT access token and a long-lived refresh token.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 POST /api/v1/auth/login
+                 {
+                     "email":    "rahul@example.com",
+                     "password": "Secure@123"
+                 }
+            
+             Use the returned **accessToken** as a Bearer token on all protected endpoints:
+            
+                 Authorization: Bearer {accessToken}
+            
+             When the access token expires (1 hour), use **POST /auth/refresh** with the refreshToken.
+             </remarks>
+             <response code="200">Login successful — tokens returned.</response>
+             <response code="400">Validation errors.</response>
+             <response code="401">Invalid credentials or inactive account.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Me(System.Threading.CancellationToken)">
+            <summary>
+            Returns the profile of the currently authenticated user.
+            Requires a valid Bearer token in the Authorization header.
+            </summary>
+            <response code="200">User profile returned.</response>
+            <response code="401">Missing or invalid token.</response>
+            <response code="404">User not found.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Refresh(MediBook.Auth.API.DTOs.RefreshTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Exchange a valid refresh token for a new access token + refresh token pair.
+            The old refresh token is revoked immediately (token rotation).
+            </summary>
+            <response code="200">New token pair issued.</response>
+            <response code="401">Refresh token invalid, expired, or revoked.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Logout(MediBook.Auth.API.DTOs.LogoutRequest,System.Threading.CancellationToken)">
+            <summary>
+            Revokes the refresh token, logging the user out.
+            The access token remains valid until it naturally expires (1 hour).
+            Clients should discard both tokens on logout.
+            </summary>
+            <response code="204">Logged out successfully.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.RegisterProvider(MediBook.Auth.API.DTOs.RegisterProviderRequest,System.Threading.CancellationToken)">
+            <summary>Register a new Provider account.</summary>
+            <response code="201">Provider registered successfully.</response>
+            <response code="400">Validation errors.</response>
+            <response code="409">Email already registered.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.UpdateProfile(MediBook.Auth.API.DTOs.UpdateProfileRequest,System.Threading.CancellationToken)">
+            <summary>Update the authenticated user's name, phone, or profile picture.</summary>
+            <response code="200">Profile updated.</response>
+            <response code="401">Missing or invalid token.</response>
+            <response code="404">User not found.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.ChangePassword(MediBook.Auth.API.DTOs.ChangePasswordRequest,System.Threading.CancellationToken)">
+            <summary>Change the authenticated user's password.</summary>
+            <response code="204">Password changed successfully.</response>
+            <response code="401">Invalid token or wrong current password.</response>
+            <response code="404">User not found.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Deactivate(System.Threading.CancellationToken)">
+            <summary>
+            Soft-deactivates the authenticated user's account.
+            All active sessions are revoked immediately.
+            </summary>
+            <response code="204">Account deactivated.</response>
+            <response code="401">Missing or invalid token.</response>
+            <response code="404">User not found.</response>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.AuthController.Health">
+            <summary>Service health check — no auth required.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Controllers.OAuthController">
+            <summary>
+            Handles the OAuth2 authorization-code flow for Google and GitHub.
+            Supported providers (pass in the URL path):
+              • google
+              • github
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.OAuthController.Login(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Initiates the OAuth2 login flow for the given provider.
+            Returns HTTP 302 to redirect the user's browser to the provider's
+            authorization/consent screen.
+            </summary>
+            <param name="provider">OAuth provider name: <c>google</c> or <c>github</c></param>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.OAuthController.Callback(System.String,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Handles the OAuth2 callback from the provider after the user
+            grants (or denies) consent.
+            On success, redirects to the Angular frontend with tokens in query params.
+            </summary>
+            <param name="provider">OAuth provider name: <c>google</c> or <c>github</c></param>
+        </member>
+        <member name="M:MediBook.Auth.API.Controllers.OAuthController.SetPassword(MediBook.Auth.API.DTOs.SetPasswordRequest,System.Threading.CancellationToken)">
+            <summary>
+            Allows a user who registered via OAuth (Google/GitHub) to set a local
+            email + password on their account.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.RegisterRequest">
+            <summary>Payload for POST /api/v1/auth/register</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.RegisterRequest.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>Payload for POST /api/v1/auth/register</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.RegisterResponse">
+            <summary>Returned on successful registration. No sensitive fields exposed.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.RegisterResponse.#ctor(System.Guid,System.String,System.String,System.String,System.String,System.Boolean,System.DateTime)">
+            <summary>Returned on successful registration. No sensitive fields exposed.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.RegisterProviderRequest">
+            <summary>Payload for POST /api/v1/auth/register-provider</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.RegisterProviderRequest.#ctor(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>Payload for POST /api/v1/auth/register-provider</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.LoginRequest">
+            <summary>Payload for POST /api/v1/auth/login</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.LoginRequest.#ctor(System.String,System.String)">
+            <summary>Payload for POST /api/v1/auth/login</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.LoginResponse">
+            <summary>
+            Returned on successful login (local or OAuth callback).
+            AccessToken  → short-lived JWT (1 hour).
+            RefreshToken → long-lived opaque string (7 days).
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.LoginResponse.#ctor(System.String,System.String,System.DateTime,MediBook.Auth.API.DTOs.UserDto)">
+            <summary>
+            Returned on successful login (local or OAuth callback).
+            AccessToken  → short-lived JWT (1 hour).
+            RefreshToken → long-lived opaque string (7 days).
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.OAuthLoginResponse">
+            <summary>
+            Returned from GET /api/v1/auth/oauth/{provider}/callback after a successful
+            OAuth exchange. Identical shape to LoginResponse — the client treats it the same.
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.OAuthLoginResponse.#ctor(System.String,System.String,System.DateTime,MediBook.Auth.API.DTOs.UserDto,System.Boolean)">
+            <summary>
+            Returned from GET /api/v1/auth/oauth/{provider}/callback after a successful
+            OAuth exchange. Identical shape to LoginResponse — the client treats it the same.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.RefreshTokenRequest">
+            <summary>Payload for POST /api/v1/auth/refresh</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.RefreshTokenRequest.#ctor(System.String)">
+            <summary>Payload for POST /api/v1/auth/refresh</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.RefreshTokenResponse">
+            <summary>Returned on successful token refresh.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.RefreshTokenResponse.#ctor(System.String,System.String,System.DateTime)">
+            <summary>Returned on successful token refresh.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.LogoutRequest">
+            <summary>Payload for POST /api/v1/auth/logout</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.LogoutRequest.#ctor(System.String)">
+            <summary>Payload for POST /api/v1/auth/logout</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.UpdateProfileRequest">
+            <summary>Payload for PUT /api/v1/auth/profile</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.UpdateProfileRequest.#ctor(System.String,System.String,System.String)">
+            <summary>Payload for PUT /api/v1/auth/profile</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.ChangePasswordRequest">
+            <summary>Payload for PUT /api/v1/auth/password</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.ChangePasswordRequest.#ctor(System.String,System.String)">
+            <summary>Payload for PUT /api/v1/auth/password</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.SetPasswordRequest">
+            <summary>
+            Payload for PUT /api/v1/auth/set-password.
+            Used by OAuth users who want to add a local password to their account.
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.SetPasswordRequest.#ctor(System.String)">
+            <summary>
+            Payload for PUT /api/v1/auth/set-password.
+            Used by OAuth users who want to add a local password to their account.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.UserDto">
+            <summary>Safe user projection — no password hash, no refresh tokens.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.UserDto.#ctor(System.Guid,System.String,System.String,System.String,System.String,System.Boolean,System.DateTime,System.String,System.Boolean)">
+            <summary>Safe user projection — no password hash, no refresh tokens.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.DTOs.ApiErrorResponse">
+            <summary>Standard API error response used across all endpoints.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.DTOs.ApiErrorResponse.#ctor(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>Standard API error response used across all endpoints.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Entities.RefreshToken">
+             <summary>
+             Persisted refresh token — stored in the database, linked to a User.
+             A refresh token is a long-lived opaque string used to obtain a new
+             short-lived JWT access token without re-entering credentials.
+            
+             Security properties:
+               - 64-byte cryptographically random value (512-bit entropy)
+               - Can be revoked individually or in bulk on logout / suspicious activity
+               - Expires after a configurable window (default 7 days)
+               - Tracks the IP and User-Agent that created it for audit purposes
+             </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.RefreshToken.UserId">
+            <summary>FK → users.id</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.RefreshToken.Token">
+            <summary>512-bit random hex string — the opaque token value sent to client.</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.RefreshToken.CreatedByIp">
+            <summary>IP address of the client that obtained this token.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Entities.RefreshToken.Create(System.Guid,System.Int32,System.String)">
+            <summary>
+            Factory — generates a cryptographically secure random token.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Entities.User">
+             <summary>
+             Core user entity for the Auth service.
+            
+             Supports two authentication modes:
+               1. Local  — email + BCrypt-hashed password (PasswordHash is set)
+               2. OAuth  — Google or GitHub (OAuthProvider + OAuthProviderId are set;
+                           PasswordHash is empty string, never compared)
+            
+             A user registered via OAuth can later set a password via PUT /auth/set-password.
+             </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.PasswordHash">
+            <summary>
+            BCrypt hash for local accounts.
+            Empty string for pure-OAuth accounts (never tested against a password).
+            </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.Role">
+            <summary>"Patient" | "Provider" | "Admin"</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.OAuthProvider">
+            <summary>
+            Identifies which OAuth provider created / linked this account.
+            Values: null (local account) | "Google" | "GitHub"
+            </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.OAuthProviderId">
+            <summary>
+            The provider's stable user identifier (Google "sub", GitHub user id).
+            Used to look up returning OAuth users without relying on email alone.
+            Unique per provider — indexed as (OAuthProvider, OAuthProviderId).
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Entities.User.Create(System.String,System.String,System.String,System.String,System.String)">
+            <summary>Creates a local (email + password) account.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Entities.User.CreateOAuth(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates an OAuth account.
+            PasswordHash is set to empty string — the account has no local password
+            until the user explicitly sets one via PUT /auth/set-password.
+            </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.IsOAuthUser">
+            <summary>True if this user registered via an OAuth provider.</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Entities.User.HasLocalPassword">
+            <summary>True if this user has a local password set.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Entities.User.LinkOAuthProvider(System.String,System.String)">
+            <summary>
+            Links an OAuth provider to an existing local account
+            (e.g. user registered with email, later signs in with Google).
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Extensions.ServiceCollectionExtensions.AddDatabase(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>Registers PostgreSQL + EF Core DbContext.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Extensions.ServiceCollectionExtensions.AddJwtAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>Registers JWT Bearer authentication middleware.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Extensions.ServiceCollectionExtensions.AddApplicationServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Registers application services and validators.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Extensions.ServiceCollectionExtensions.AddOAuthServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Registers OAuth2 services: OAuthService, OAuthStateStore, and the
+            named HttpClient used to call provider token/profile endpoints.
+            Also binds OAuthSettings from configuration.
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Extensions.ServiceCollectionExtensions.AddSwaggerDocs(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Configures Swagger with JWT Bearer auth support.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Helpers.JwtSettings">
+            <summary>
+            Strongly-typed configuration for JWT generation.
+            Bound from appsettings.json → "JwtSettings" section.
+            </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.JwtSettings.SecretKey">
+            <summary>
+            Secret key used to sign JWT tokens.
+            MUST be at least 32 characters (256-bit).
+            In production, store in environment variable / Azure Key Vault — never in source.
+            </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.JwtSettings.Issuer">
+            <summary>Token issuer (iss claim) — e.g. "MediBook.Auth"</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.JwtSettings.Audience">
+            <summary>Intended audience (aud claim) — e.g. "MediBook.Client"</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.JwtSettings.AccessTokenExpiryMinutes">
+            <summary>Access token lifetime in minutes. Default: 60 (1 hour).</summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.JwtSettings.RefreshTokenExpiryDays">
+            <summary>Refresh token lifetime in days. Default: 7.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Helpers.JwtTokenGenerator">
+            <summary>
+            Generates signed JWT access tokens.
+            Uses HMAC-SHA256 signing with the configured secret key.
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Helpers.JwtTokenGenerator.GenerateAccessToken(MediBook.Auth.API.Entities.User)">
+            <summary>
+            Creates a signed JWT access token for the given user.
+            Claims included: sub (userId), email, role, jti (unique token id).
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Helpers.OAuthSettings">
+             <summary>
+             Strongly-typed configuration for OAuth2 social login providers.
+             Bound from appsettings.json → "OAuthSettings" section.
+            
+             Required appsettings entries:
+               "OAuthSettings": {
+                 "Google": { "ClientId": "...", "ClientSecret": "..." },
+                 "GitHub": { "ClientId": "...", "ClientSecret": "..." },
+                 "CallbackBaseUrl": "https://your-api-host"
+               }
+             </summary>
+        </member>
+        <member name="P:MediBook.Auth.API.Helpers.OAuthSettings.CallbackBaseUrl">
+            <summary>
+            Base URL of this auth-service, used to build absolute callback URIs.
+            E.g. "https://auth.medibook.io" or "http://localhost:5000" in dev.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Middleware.GlobalExceptionMiddleware">
+            <summary>
+            Catches any unhandled exception and returns a clean JSON error response.
+            Prevents stack traces leaking to the client in production.
+            </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:MediBook.Auth.API.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MediBook.Auth.API.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:MediBook.Auth.API.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:MediBook.Auth.API.Services.IAuthService">
+            <summary>
+            Business contract for the Auth service.
+            UC-1:  RegisterAsync (Patient), RegisterProviderAsync (Provider)
+            UC-2:  LoginAsync, GetCurrentUserAsync, RefreshTokenAsync, LogoutAsync
+            UC-3:  UpdateProfileAsync, ChangePasswordAsync, DeactivateAccountAsync
+            OAuth: SetPasswordAsync (OAuth users adding a local password)
+            Util:  GetUserByEmailAsync, GetUserByIdAsync
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Services.IAuthService.SetPasswordAsync(System.Guid,MediBook.Auth.API.DTOs.SetPasswordRequest,System.Threading.CancellationToken)">
+            <summary>
+            Allows an OAuth-only user to set a local password for the first time.
+            After this, the user can also log in with email + password.
+            </summary>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">User not found.</exception>
+            <exception cref="T:System.InvalidOperationException">User already has a local password.</exception>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:MediBook.Auth.API.Services.IOAuthService" -->
+        <member name="M:MediBook.Auth.API.Services.IOAuthService.GetAuthorizationUrlAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Builds the authorization URL to redirect the user to the given OAuth provider.
+            Generates and stores a CSRF state token for later validation.
+            </summary>
+            <param name="provider">"google" or "github" (case-insensitive)</param>
+            <param name="ipAddress">Caller IP, stored for audit.</param>
+            <returns>The provider's authorization URL the client should redirect to.</returns>
+            <exception cref="T:System.ArgumentException">Unknown provider.</exception>
+        </member>
+        <member name="M:MediBook.Auth.API.Services.IOAuthService.HandleCallbackAsync(System.String,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Handles the OAuth callback: validates state, exchanges code for tokens,
+            fetches the user's profile, upserts the MediBook User, issues JWT pair.
+            </summary>
+            <param name="provider">"google" or "github"</param>
+            <param name="code">Authorization code from the provider.</param>
+            <param name="state">State token returned by provider (must match stored value).</param>
+            <param name="ipAddress">Caller IP for refresh token audit.</param>
+            <returns>JWT access token + refresh token + user info + isNewUser flag.</returns>
+            <exception cref="T:System.UnauthorizedAccessException">State mismatch / invalid code.</exception>
+        </member>
+        <member name="T:MediBook.Auth.API.Services.OAuthService">
+             <summary>
+             Implements the OAuth2 authorization-code flow for Google and GitHub.
+            
+             Design decisions:
+               • Uses raw HttpClient (via IHttpClientFactory) rather than the ASP.NET Core
+                 cookie-based OAuth middleware because this is a pure API service — there
+                 are no cookies / browser sessions. Tokens are returned as JSON, not set
+                 as cookies.
+               • State tokens are stored in OAuthStateStore (in-memory; swap for Redis
+                 in a multi-instance deployment).
+               • Provider profile is fetched with the provider's access token, then the
+                 user is upserted: found by (OAuthProvider, OAuthProviderId) first,
+                 then by email (to link an existing local account), then created fresh.
+               • On success, a MediBook JWT + refresh token pair is issued — same path
+                 as local login.
+             </summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Services.OAuthUserProfile">
+            <summary>Normalised user profile data returned by any OAuth provider.</summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Services.OAuthUserProfile.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>Normalised user profile data returned by any OAuth provider.</summary>
+        </member>
+        <member name="T:MediBook.Auth.API.Services.OAuthStateStore">
+             <summary>
+             Thread-safe in-memory store for OAuth CSRF state tokens.
+            
+             Each entry is keyed on the opaque state string and expires after
+             <see cref="F:MediBook.Auth.API.Services.OAuthStateStore.StateTtl"/> (default 10 minutes) — long enough for a user to
+             complete the consent flow, short enough to limit replay window.
+            
+             In a multi-instance / Kubernetes deployment replace this with a distributed
+             cache (Redis via IDistributedCache) — the interface surface stays the same.
+             </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Services.OAuthStateStore.GenerateAndStore(System.String)">
+            <summary>
+            Generates a new cryptographically random state token, stores it,
+            and returns it to be embedded in the authorization redirect URL.
+            </summary>
+        </member>
+        <member name="M:MediBook.Auth.API.Services.OAuthStateStore.ValidateAndConsume(System.String,System.String)">
+            <summary>
+            Validates that <paramref name="state"/> was issued by this service for
+            <paramref name="provider"/> and has not expired.
+            Consumes the entry (one-time use) on success.
+            </summary>
+            <returns>True if valid and consumed; false otherwise.</returns>
+        </member>
+    </members>
+</doc>

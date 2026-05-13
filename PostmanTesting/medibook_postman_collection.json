@@ -1,0 +1,314 @@
+{
+    "info": {
+        "name": "MediBook Core API Testing",
+        "description": "Full collection for testing Auth, Providers, Slots, Appointments, Payments, Reviews, and Notifications.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "01. Auth",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fullName\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"Patient\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"jane@example.com\",\n    \"password\": \"Password123!\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "02. Providers",
+            "item": [
+                {
+                    "name": "Search Providers",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/providers/search?specialty=Cardiology",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "providers",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "specialty",
+                                    "value": "Cardiology"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Provider Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/providers/me",
+                            "header": [
+                                {
+                                    "key": "Authorization",
+                                    "value": "Bearer {{token}}"
+                                }
+                            ],
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "providers",
+                                "me"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "03. Slots & Booking",
+            "item": [
+                {
+                    "name": "Get Available Slots",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/schedule/slots/available?providerId={{provider_id}}&date=2026-05-20",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "schedule",
+                                "slots",
+                                "available"
+                            ],
+                            "query": [
+                                {
+                                    "key": "providerId",
+                                    "value": "{{provider_id}}"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "2026-05-20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Initiate Booking (Saga Start)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"patientId\": \"{{patient_id}}\",\n    \"serviceType\": \"General Checkup\",\n    \"modeOfConsultation\": \"Video\",\n    \"notes\": \"Initial consultation\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/schedule/slots/{{slot_id}}/book",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "schedule",
+                                "slots",
+                                "{{slot_id}}",
+                                "book"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "04. Appointments",
+            "item": [
+                {
+                    "name": "Get My Appointments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/appointments/patient/{{patient_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "appointments",
+                                "patient",
+                                "{{patient_id}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "05. Payments",
+            "item": [
+                {
+                    "name": "Confirm Payment (Saga Success)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"paymentId\": {{payment_id}},\n    \"razorpayOrderId\": \"order_123\",\n    \"razorpayPaymentId\": \"pay_123\",\n    \"razorpaySignature\": \"sig_123\",\n    \"transactionId\": \"txn_123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payment/confirm",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payment",
+                                "confirm"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "06. Reviews",
+            "item": [
+                {
+                    "name": "Add Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"appointmentId\": {{appointment_id}},\n    \"patientId\": \"{{patient_id}}\",\n    \"providerId\": \"{{provider_id}}\",\n    \"rating\": 5,\n    \"comment\": \"Excellent service!\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/reviews",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "reviews"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "PASTE_TOKEN_HERE",
+            "type": "string"
+        },
+        {
+            "key": "patient_id",
+            "value": "GUID",
+            "type": "string"
+        },
+        {
+            "key": "provider_id",
+            "value": "GUID",
+            "type": "string"
+        },
+        {
+            "key": "slot_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "payment_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "appointment_id",
+            "value": "1",
+            "type": "string"
+        }
+    ]
+}
